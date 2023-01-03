@@ -1,33 +1,35 @@
-from assumptions import make1, make2, make3, make4
+import numpy as np
+from preprocessing import preprocess
 
 
-# 1 step is to get input points. For now it is simply stored in list `points`
 
-# 0 ......
-# 1 .+....
+# 1 step is to get input points. For now it is stored in numpy.array `points`
+
+# 0 +.....
+# 1 ......
 # 2 .....+
 # 3 ......
-# 4 ....+.
+# 4 ...+..
 #   012345
-points = [
-    [1, 1],
-    [4, 4],
+points = np.array([
+    [0, 0],
+    [3, 4],
     [5, 2],
-]
+])
 print("Raw input points:")
 print(points)
 print("\n")
 
 
-# 2 step is to apply several assumptions (described in assumptions.py) to the input
 
-points = make1(points)
-points = make2(points)
-points = make3(points)
-points = make4(points)
-print("Input points after applying assumptions:")
+# 2 step is to preprocess input (described in preprocessing.py)
+
+N = 2
+points = preprocess(points, N)
+print(f"Input points after applying preprocessing (with {N=}):")
 print(points)
 print("\n")
+
 
 
 # 3 step is to ??????????
