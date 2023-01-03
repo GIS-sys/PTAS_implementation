@@ -2,8 +2,9 @@ import numpy as np
 import math
 
 
-def preprocess(points, n):
+def preprocess(points):
     # let L = 4*n^2
+    n = len(points)
     L = 4 * n * n
     # move and resize points in such way that square [0,L-1]x[0,L-1]
     # is the smallest one which can contain all the points
