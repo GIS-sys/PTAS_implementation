@@ -24,7 +24,7 @@ print("\n")
 
 # 2 step is to preprocess input (described in preprocessing.py)
 
-N = 2
+N = len(points)
 points = preprocess(points, N)
 print(f"Input points after applying preprocessing (with {N=}):")
 print(points)
