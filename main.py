@@ -32,7 +32,10 @@ print("\n")
 
 
 
-# 3 step is to ??????????
+# 3 step is to apply dynamic programming and solve simplified problem
+
+c = 1
+m = 1
 
 
 print(points)

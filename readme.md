@@ -30,7 +30,7 @@ b) the tour enters and exits only through portals
 
 c) the tour enters/exits through each portal no more than c=O(1) times (imagine it being c mini-portals very close to each other, each one being crossed at most once)
 
-d) the tour is not self-intersecting (except for intersecting in portals)
+d) the tour is not self-intersecting in terms of mini-portals
 
 as was said in step 2, assumption a) increases optimal tour length not more than by 1+1/n times; for other assumption similar result is shown in chapter 4 in paper (1)
 
@@ -40,4 +40,5 @@ as was said in step 2, assumption a) increases optimal tour length not more than
 
 (1) http://viswa.engin.umich.edu/wp-content/uploads/sites/169/2019/03/9.pdf
 
+(2) https://users.exa.unicen.edu.ar/catedras/aydalgo2/docs/AroraTSP.pdf
 
