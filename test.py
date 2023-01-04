@@ -34,3 +34,17 @@ def test_iter_leaves():
             assert testing_leave == [all_squares - 1, [L - 1, L - 1]]
     assert i == L * L - 1
 
+def test_iter_nonleaves():
+    n = 2
+    L = 4 * n * n
+    all_squares = (4 * L * L - 1) / 3
+    leaves_amount = L * L
+    for i, testing_square in enumerate(iter_nonleaves(n)):
+        if i == 0:
+            assert testing_square == [all_squares - leaves_amount - 1, [0, 0], 2]
+        if i == 1:
+            assert testing_square == [all_squares - leaves_amount - 2, [2, 0], 2]
+        if i == all_squares - leaves_amount - 1:
+            assert testing_square == [0, [0, 0], L]
+    assert i == all_squares - leaves_amount - 1
+

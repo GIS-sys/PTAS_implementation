@@ -11,8 +11,16 @@ def iter_leaves(n):
         yield [i + all_squares - L * L, [i % L, i // L]]
 
 def iter_nonleaves(n):
-    yield 0
-    return
+    L = 4 * n * n
+    size = 2
+    index = (4 * L * L - 1) // 3 - L * L - 1
+    while size < L:
+        for y in range(0, L // size):
+            for x in range(0, L // size):
+                yield [index, [x * size, y * size], size]
+                index -= 1
+        size *= 2
+    yield [0, [0, 0], L]
 
 def iter_portal_usages(m, c):
     yield 0
