@@ -57,8 +57,8 @@ print("\n")
 # let's compare answer to real length
 
 from optimal import find_optimal_tour
-optimal_tour = find_optimal_tour(points)
-print(f"Length of optimal tour: {optimal_tour[1]}")
+optimal_tour, optimal_length = find_optimal_tour(points)
+print(f"Length of optimal tour: {optimal_length}")
 print("Optimal tour:")
-print(optimal_tour[0])
+print(optimal_tour)
 

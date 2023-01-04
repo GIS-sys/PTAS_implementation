@@ -4,8 +4,11 @@ import numpy as np
 MAX_DP_VAL = 1e18
 
 def iter_leaves(n):
-    yield 0
-    return
+    # return [a, [x, y]] where a is index of square, x,y are coordinates of left-upper corner
+    L = 4 * n * n
+    all_squares = (4 * L * L - 1) // 3
+    for i in range(L * L):
+        yield [i + all_squares - L * L, [i % L, i // L]]
 
 def iter_nonleaves(n):
     yield 0

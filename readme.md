@@ -4,6 +4,10 @@ Change input points directly in main.py, then run
 
 ```python main.py```
 
+To run test execute command
+
+```python -m pytest test.py```
+
 # Plan of proof of algorithm
 
 (the step-by-step description of algorithm for now can be found if you start reading comments in main.py and go into every package on the way)
