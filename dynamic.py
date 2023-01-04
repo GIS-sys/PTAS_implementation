@@ -38,10 +38,41 @@ def iter_portal_usages(m, c):
         if sum(position) == 0:
             break
 
+def calculate_shortest_tour_recursively(portal_usage, left=-1, right=-1):
+    # connect 1 to 2 in portal_usage
+    min_distance = MAX_DP_VAL
+    if left == -1 and right == -1:
+        left = 0
+        right = len(portal_usage[1]) - 1
+    while left <= right and portal_usage[left] == 0:
+        left += 1
+    while left <= right and portal_usage[right] == 0:
+        right -= 1
+    if left >= right:
+        return min_distance
+    k = 1
+    balance = portal_usage[left] * 2 - 3 # either -1=(1*2-3) or 1=(2*2-3)
+    while k <= right - left:
+        balance += portal_usage[left] * 2 - 3
+        if balance == 0:
+            min_distance = min(min_distance, calculate_shortest_tour_recursively(portal_usage, left + 1, left + k - 1))
+        k += 1
+    if balance != 0:
+        return MAX_DP_VAL
+    return min_distance
+
 def calc_portal_dist_leave(portal_usage, points, square):
-    # iterates through all different possibilities of connecting portals 
+    # check that portal usage is compatible with points
+    # then iterate through all different possibilities of connecting portals 
     #  (according to portal_usage: 0 is not used, 1 is enter, 2 is exit)
-    return 1
+    # and find shortest tour
+    cm = len(portal_usage[1]) // 4
+    for dx in [0, 1]:
+        for dy in [0, 1]:
+            point = [square[1][0] + dx * 1, square[1][1] + dy * 1]
+            if point in points and not portal_usage[1][cm * (dx + 2 * dy)]:
+                return MAX_DP_VAL
+    return calculate_shortest_tour_recursively(portal_usage)
 
 def check_portal_usage(usage1, usage2, usage3, usage4):
     # check if usages are compatible, i. e. they can be placed next to each other
