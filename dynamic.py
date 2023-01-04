@@ -39,9 +39,33 @@ def iter_portal_usages(m, c):
             break
 
 def calc_portal_dist_leave(portal_usage, points, square):
+    # iterates through all different possibilities of connecting portals 
+    #  (according to portal_usage: 0 is not used, 1 is enter, 2 is exit)
     return 1
 
 def check_portal_usage(usage1, usage2, usage3, usage4):
+    # check if usages are compatible, i. e. they can be placed next to each other
+    mc = len(usage1[1]) // 4
+    # top 1-2
+    if usage1 and usage2:
+        for k in range(0, mc):
+            if (usage1[1][mc+k] + usage2[1][3*mc+k]) % 3 != 0:
+                return False
+    # right 2-4
+    if usage2 and usage4:
+        for k in range(0, mc):
+            if (usage2[1][2*mc+k] + usage4[1][k]) % 3 != 0:
+                return False
+    # bottom 3-4
+    if usage3 and usage4:
+        for k in range(0, mc):
+            if (usage3[1][mc+k] + usage4[1][3*mc+k]) % 3 != 0:
+                return False
+    # left 1-3
+    if usage1 and usage3:
+        for k in range(0, mc):
+            if (usage1[1][2*mc+k] + usage3[1][k]) % 3 != 0:
+                return False
     return True
 
 def get_parent_portal_usage(usage1, usage2, usage3, usage4):
@@ -87,26 +111,30 @@ def do_dp(points, c, m):
     POSITIONS_AMOUNT = 3**(4*m*c) # 2^(2r)=2^(2mc) - how many different possible portal usages
     dp = np.zeros((SQUARES_AMOUNT, POSITIONS_AMOUNT)) + MAX_DP_VAL
     # base
+    print("Calculating base for DP...")
     for square in iter_leaves(n):
         for portal_usage in iter_portal_usages(m, c):
             dp[square[0]][portal_usage[0]] = calc_portal_dist_leave(portal_usage, points, square)
     # recursion
+    print("Calculating whole DP")
+    debug_counter = 0
     for square in iter_nonleaves(n):
         for portal_usage_1 in iter_portal_usages(m, c):
             for portal_usage_2 in iter_portal_usages(m, c):
+                debug_counter += 1
+                print(f"{debug_counter} / {((4 * L * L - 1) // 3 - L * L) * 3**(4*m*c) * 3**(4*m*c)}")
                 if not check_portal_usage(portal_usage_1, portal_usage_2, None, None):
                     continue
                 for portal_usage_3 in iter_portal_usages(m, c):
                     if not check_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, None):
                         continue
                     for portal_usage_4 in iter_portal_usages(m, c):
-                        if check_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4):
-                            portal_usage_parent = get_parent_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4)
-                            children = get_children(square, L)
-                            new_dp = dp[children[0][0]][portal_usage_1[0]] + dp[children[1][0]][portal_usage_2[0]] + dp[children[2][0]][portal_usage_3[0]] + dp[children[3][0]][portal_usage_4[0]]
-                            #dp[square][portal_usage_parent] = min(dp[square][portal_usage], calc_portal_dist_inner(portal_usage, portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4))
-                            dp[square[0]][portal_usage_parent[0]] = min(dp[square[0]][portal_usage_parent[0]], new_dp)
-        print(f"{square[0]} / {(4 * L * L - 1) // 3 - L * L}")
+                        if not check_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4):
+                            continue
+                        portal_usage_parent = get_parent_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4)
+                        children = get_children(square, L)
+                        new_dp = dp[children[0][0]][portal_usage_1[0]] + dp[children[1][0]][portal_usage_2[0]] + dp[children[2][0]][portal_usage_3[0]] + dp[children[3][0]][portal_usage_4[0]]
+                        dp[square[0]][portal_usage_parent[0]] = min(dp[square[0]][portal_usage_parent[0]], new_dp)
     return dp
 
 def get_dp_answer(points, c, m, dp):
