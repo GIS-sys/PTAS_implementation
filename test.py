@@ -27,11 +27,11 @@ def test_iter_leaves():
     all_squares = (4 * L * L - 1) / 3
     for i, testing_leave in enumerate(iter_leaves(n)):
         if i == 0:
-            assert testing_leave == [all_squares - L * L, [0, 0]]
+            assert testing_leave == [all_squares - L * L, [0, 0], 1]
         if i == 1:
-            assert testing_leave == [all_squares - L * L + 1, [1, 0]]
+            assert testing_leave == [all_squares - L * L + 1, [1, 0], 1]
         if i == L * L - 1:
-            assert testing_leave == [all_squares - 1, [L - 1, L - 1]]
+            assert testing_leave == [all_squares - 1, [L - 1, L - 1], 1]
     assert i == L * L - 1
 
 def test_iter_nonleaves():
@@ -47,4 +47,35 @@ def test_iter_nonleaves():
         if i == all_squares - leaves_amount - 1:
             assert testing_square == [0, [0, 0], L]
     assert i == all_squares - leaves_amount - 1
+
+def test_get_children():
+    n = 4
+    L = 4 * n * n
+    L2 = L // 2
+    L4 = L // 4
+    assert get_children([0, [0, 0], L], L) == [[1, [0, 0], L2], [2, [L2, 0], L2], [3, [0, L2], L2], [4, [L2, L2], L2]]
+    assert get_children([2, [L2, 0], L2], L) == [[7, [L2, 0], L4], [8, [L2+L4, 0], L4], [11, [L2, L4], L4], [12, [L2+L4, L4], L4]]
+    assert get_children([4, [L2, L2], L2], L) == [[15, [L2, L2], L4], [16, [L2+L4, L2], L4], [19, [L2, L2+L4], L4], [20, [L2+L4, L2+L4], L4]]
+
+def test_iter_portal_usages():
+    m = 3
+    c = 2
+    for i, testing_portal in enumerate(iter_portal_usages(m, c)):
+        if i == 0:
+            assert testing_portal == [0, [0] * (4*m*c - 4) + [0, 0, 0, 0]]
+        if i == 2:
+            assert testing_portal == [2, [0] * (4*m*c - 4) + [0, 0, 0, 2]]
+        if i == 6:
+            assert testing_portal == [6, [0] * (4*m*c - 4) + [0, 0, 2, 0]]
+        if i == 25:
+            assert testing_portal == [25, [0] * (4*m*c - 4) + [0, 2, 2, 1]]
+            break
+
+def test_get_parent_portal_usage():
+    usage1 = [-1, [1, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0]]
+    usage2 = [-1, [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    usage3 = [-1, [0, 0, 0, 0, 1, 0, 1, 0, 2, 0, 2, 0, 0, 0, 0, 0]]
+    usage4 = [-1, [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0]]
+    usage_res = [-1, [1, 0, 0, 1, 0, 0, 1, 1, 2, 2, 1, 2, 1, 0, 1, 2]]
+    assert get_parent_portal_usage(usage1, usage2, usage3, usage4)[1] == usage_res[1]
 

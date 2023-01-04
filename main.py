@@ -35,7 +35,8 @@ print("\n")
 
 # 3 step is to do dynamic programming and find exact solution of simplified problem
 
-c = 2**1 # must be power of 2
+# mc >= 2
+c = 2**0 # must be power of 2
 m = 2**1 # must be power of 2
 result = do_dp(points_preprocessed, c, m)
 
