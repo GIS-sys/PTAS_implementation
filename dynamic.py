@@ -154,8 +154,8 @@ def check_portal_usage(usage1, usage2, usage3, usage4):
 def get_parent_portal_usage(usage1, usage2, usage3, usage4):
     # pick sides of usages to form outside of the parent square (combined from 4 smaller ones)
     mc = len(usage1[1]) // 4
-    usage = [-1, usage1[1][-mc:mc][::2] + usage2[1][:2*mc][::2] + usage3[1][mc:3*mc][::2] + usage4[1][2*mc:4*mc][::2] + usage1[1][3*mc:4*mc][::2]]
-    usage[1] = usage[1][mc:] + usage[1][:mc]
+    usage = [-1, (usage1[1][-mc:] + usage1[1][:mc])[::2] + usage2[1][:2*mc][::2] + usage3[1][mc:3*mc][::2] + usage4[1][2*mc:4*mc][::2]]
+    usage[1] = usage[1][(mc+1)//2:] + usage[1][:(mc+1)//2]
     usage[0] = get_usage_index(usage)
     return usage
 
