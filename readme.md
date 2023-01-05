@@ -16,13 +16,13 @@ To run test execute command
 
 2) rounding while preprocessing changes optimal length in not more than 1+1/n times (lemma 2.1 in paper (1))
 
-*) def: Imagine dissecting LxL square into 1x1 squares, starting with 1 LxL square and cutting each square into 4 smaller ones on each step;
+\* def: Imagine dissecting LxL square into 1x1 squares, starting with 1 LxL square and cutting each square into 4 smaller ones on each step;
 let square be at level k (0<=k<=log2(L)) if it has appeared on the kth step of dissection
 
-*) def: let line be at level k (1<=k<=log2(L)) if it has been used to divide square of level (k-1) into 4 smaller squares;
+\* def: let line be at level k (1<=k<=log2(L)) if it has been used to divide square of level (k-1) into 4 smaller squares;
 sides of square LxL are defined to be lines at level 0
 
-*) def: let's call a system of 4*M points on sides of a square S at level k "M-portals" if they are uniformly spaced
+\* def: let's call a system of 4*M points on sides of a square S at level k "M-portals" if they are uniformly spaced
 with 4 of them positioned in corners of the square S (so there are M-1 portals on each side, not counting portals in corners);
 also let's suppose that M is a power of 2, so portals of square S at level k are also portals of smaller squares
 
