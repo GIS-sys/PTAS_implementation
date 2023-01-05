@@ -37,7 +37,7 @@ print("\n")
 
 # mc >= 2
 c = 2**0 # must be power of 2
-m = 2**1 # must be power of 2
+m = 2**0 # must be power of 2
 result = do_dp(points_preprocessed, c, m)
 
 print("Result of dynamic programming:")

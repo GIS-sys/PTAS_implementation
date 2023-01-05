@@ -154,7 +154,8 @@ def check_portal_usage(usage1, usage2, usage3, usage4):
 def get_parent_portal_usage(usage1, usage2, usage3, usage4):
     # pick sides of usages to form outside of the parent square (combined from 4 smaller ones)
     mc = len(usage1[1]) // 4
-    usage = [-1, usage1[1][:mc:2] + usage2[1][:2*mc:2] + usage3[1][mc:3*mc:2] + usage4[1][2*mc:4*mc:2] + usage1[1][3*mc:4*mc:2]]
+    usage = [-1, usage1[1][-mc:mc][::2] + usage2[1][:2*mc][::2] + usage3[1][mc:3*mc][::2] + usage4[1][2*mc:4*mc][::2] + usage1[1][3*mc:4*mc][::2]]
+    usage[1] = usage[1][mc:] + usage[1][:mc]
     usage[0] = get_usage_index(usage)
     return usage
 
@@ -218,6 +219,7 @@ def do_dp(points, c, m):
         for portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4 in iter_4_correlated_portal_usages(m, c):
                         debug_counter += 1
                         portal_usage_parent = get_parent_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4)
+                        #print(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4, portal_usage_parent)
                         children = get_children(square, L)
                         new_dp = dp[children[0][0]][portal_usage_1[0]] + dp[children[1][0]][portal_usage_2[0]] + dp[children[2][0]][portal_usage_3[0]] + dp[children[3][0]][portal_usage_4[0]]
                         dp[square[0]][portal_usage_parent[0]] = min(dp[square[0]][portal_usage_parent[0]], new_dp)
