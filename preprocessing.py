@@ -11,8 +11,9 @@ def preprocess(points):
     # (resizing does not change quality of approximation of the algorithm)
     points -= [min(points[:, 0]), min(points[:, 1])]
     dimension_sizes = [max(points[:, 0]), max(points[:, 1])]
-    scaling_factor = (L - 1) / max(dimension_sizes)
+    scaling_factor = (L - 2) / max(dimension_sizes)
     points = points * scaling_factor
+    points += [1, 1]
     # round each point in such a way that all points are sitting on the grid
     # with size of [0,L-1]x[0,L-1]
     for i, point in enumerate(points):

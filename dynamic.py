@@ -40,18 +40,25 @@ def iter_portal_usages(m, c):
             break
 
 def iter_4_correlated_portal_usages(m, c):
-    # DEBUG
+    # return 4 lists of (m*c) numbers between 0 and 2, f. e. [1, 0, 0, 2] for m*c=4, such that they are compatible
+    #  (placed side-to-side exits will meet enters of other square)
     mc = m * c
-    position = [0] * ((8 * m + 4 * m - 3) * c)
+    position = [0] * ((8 * m + 4 * (m - 1)) * c) # 8 sides of bigger square, 4 inner sides
     index = 0
     while True:
         portals = []
-        portals.append([-1, position[0:mc] + [position[mc]] + position[8*mc:9*mc-1] + [position[12*mc-4]] + position[11*mc-3:12*mc-4][::-1] + position[7*mc:8*mc]])
-        portals.append([-1, position[mc:2*mc] + position[2*mc:3*mc] + [position[3*mc]] + position[9*mc-1:10*mc-2][::-1] + [position[12*mc-4]] + position[8*mc:9*mc-1][::-1]])
-        portals.append([-1, [position[7*mc]] + position[11*mc-3:12*mc-4] + [position[12*mc-4]] + position[10*mc-2:11*mc-3] + position[5*mc:6*mc][::-1] + position[6*mc:7*mc]])
-        portals.append([-1, [position[12*mc-4]] + position[9*mc-1:10*mc-2] + position[3*mc:4*mc] + position[4*mc:5*mc] + [position[5*mc]] + position[10*mc-2:11*mc-3][::-1]])
-        #DBGDEBUGprint(portals)
-        #input()
+        # create portals for subsquares
+        portals.append([-1, position[0:mc] + [position[mc]] + position[8*mc:9*mc-1] + [0] + position[11*mc-3:12*mc-4][::-1] + position[7*mc:8*mc]])
+        portals.append([-1, position[mc:2*mc] + position[2*mc:3*mc] + [position[3*mc]] + position[9*mc-1:10*mc-2][::-1] + [0] + position[8*mc:9*mc-1][::-1]])
+        portals.append([-1, [position[7*mc]] + position[11*mc-3:12*mc-4] + [0] + position[10*mc-2:11*mc-3] + position[5*mc:6*mc][::-1] + position[6*mc:7*mc]])
+        portals.append([-1, [0] + position[9*mc-1:10*mc-2] + position[3*mc:4*mc] + position[4*mc:5*mc] + [position[5*mc]] + position[10*mc-2:11*mc-3][::-1]])
+        # make them compatible: turn some portals 2->1, 1->2 (0->0)
+        transform = lambda x: [0, 2, 1][x]
+        for k in range(mc):
+            portals[0][1][mc+k] = transform(portals[0][1][mc+k])
+            portals[1][1][2*mc+k] = transform(portals[1][1][2*mc+k])
+            portals[3][1][3*mc+k] = transform(portals[3][1][3*mc+k])
+            portals[2][1][k] = transform(portals[2][1][k])
         for k in range(4):
             portals[k][0] = get_usage_index(portals[k])
         yield portals
@@ -220,7 +227,6 @@ def do_dp(points, c, m):
         for portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4 in iter_4_correlated_portal_usages(m, c):
             log_counter += 1
             portal_usage_parent = get_parent_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4)
-            #print(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4, portal_usage_parent)
             children = get_children(square, L)
             new_dp = dp[children[0][0]][portal_usage_1[0]] + dp[children[1][0]][portal_usage_2[0]] + dp[children[2][0]][portal_usage_3[0]] + dp[children[3][0]][portal_usage_4[0]]
             dp[square[0]][portal_usage_parent[0]] = min(dp[square[0]][portal_usage_parent[0]], new_dp)
