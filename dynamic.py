@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 
 MAX_DP_VAL = 1e18
@@ -38,41 +39,67 @@ def iter_portal_usages(m, c):
         if sum(position) == 0:
             break
 
-def calculate_shortest_tour_recursively(portal_usage, left=-1, right=-1):
+def portal_to_point(portal_index, c, m):
+    if portal_index < c * m:
+        return [portal_index // c * (1 / m), 0]
+    portal_index -= c * m
+    if portal_index < c * m:
+        return [1, portal_index // c * (1 / m)]
+    portal_index -= c * m
+    if portal_index < c * m:
+        return [1 - portal_index // c * (1 / m), 1]
+    portal_index -= c * m
+    if portal_index < c * m:
+        return [0, 1 - portal_index // c * (1 / m)]
+    raise Exception(f"Unexpected {portal=} in portal_to_point")
+
+def calculate_shortest_tour_recursively(portal_usage, c, m, left=-1, right=-1):
     # connect 1 to 2 in portal_usage
     min_distance = MAX_DP_VAL
     if left == -1 and right == -1:
         left = 0
         right = len(portal_usage[1]) - 1
-    while left <= right and portal_usage[left] == 0:
+    while left <= right and portal_usage[1][left] == 0:
         left += 1
-    while left <= right and portal_usage[right] == 0:
+    while left <= right and portal_usage[1][right] == 0:
         right -= 1
     if left >= right:
-        return min_distance
+        return 0
     k = 1
-    balance = portal_usage[left] * 2 - 3 # either -1=(1*2-3) or 1=(2*2-3)
+    direction_to_balance = lambda x: [0, -1, 1][x] # translates 0->0, 1->-1, 2->1
+    balance = direction_to_balance(portal_usage[1][left])
     while k <= right - left:
-        balance += portal_usage[left] * 2 - 3
+        balance += direction_to_balance(portal_usage[1][left + k])
         if balance == 0:
-            min_distance = min(min_distance, calculate_shortest_tour_recursively(portal_usage, left + 1, left + k - 1))
+            point_left = portal_to_point(left, c, m)
+            point_right = portal_to_point(left + k, c, m)
+            current_distance = math.sqrt((point_left[0] - point_right[0])**2 + (point_left[1] - point_right[1])**2) # distance between left and left+k
+            part1 = calculate_shortest_tour_recursively(portal_usage, c, m, left + 1, left + k - 1)
+            part2 = calculate_shortest_tour_recursively(portal_usage, c, m, left + k + 1, right)
+            min_distance = min(min_distance, part1 + part2 + current_distance)
         k += 1
     if balance != 0:
         return MAX_DP_VAL
     return min_distance
 
-def calc_portal_dist_leave(portal_usage, points, square):
+def calc_portal_dist_leave(portal_usage, points, square, c, m):
     # check that portal usage is compatible with points
     # then iterate through all different possibilities of connecting portals 
     #  (according to portal_usage: 0 is not used, 1 is enter, 2 is exit)
     # and find shortest tour
-    cm = len(portal_usage[1]) // 4
+    points_list = [list(point) for point in points]
     for dx in [0, 1]:
         for dy in [0, 1]:
-            point = [square[1][0] + dx * 1, square[1][1] + dy * 1]
-            if point in points and not portal_usage[1][cm * (dx + 2 * dy)]:
-                return MAX_DP_VAL
-    return calculate_shortest_tour_recursively(portal_usage)
+            point = [square[1][0] + dx, square[1][1] + dy]
+            if point in points_list:
+                found_portal_on_point = False
+                for x in range(0, c):
+                    if portal_usage[1][c * m * (dx + 2 * dy) + x]:
+                        found_portal_on_point = True
+                        break
+                if not found_portal_on_point:
+                    return MAX_DP_VAL
+    return calculate_shortest_tour_recursively(portal_usage, c, m)
 
 def check_portal_usage(usage1, usage2, usage3, usage4):
     # check if usages are compatible, i. e. they can be placed next to each other
@@ -145,7 +172,8 @@ def do_dp(points, c, m):
     print("Calculating base for DP...")
     for square in iter_leaves(n):
         for portal_usage in iter_portal_usages(m, c):
-            dp[square[0]][portal_usage[0]] = calc_portal_dist_leave(portal_usage, points, square)
+            dp[square[0]][portal_usage[0]] = calc_portal_dist_leave(portal_usage, points, square, c, m)
+        print(f"{square[0] - (4 * L * L - 1) // 3 + L * L} / {L * L}")
     # recursion
     print("Calculating whole DP")
     debug_counter = 0

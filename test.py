@@ -8,6 +8,7 @@ from dynamic import (
     check_portal_usage,
     get_parent_portal_usage,
     get_children,
+    MAX_DP_VAL,
 )
 import math
 import numpy as np
@@ -78,4 +79,30 @@ def test_get_parent_portal_usage():
     usage4 = [-1, [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0]]
     usage_res = [-1, [1, 0, 0, 1, 0, 0, 1, 1, 2, 2, 1, 2, 1, 0, 1, 2]]
     assert get_parent_portal_usage(usage1, usage2, usage3, usage4)[1] == usage_res[1]
+
+def test_calc_portal_dist_leave():
+    # 1
+    portal_usage = [0, [1, 2, 2, 1, 2, 1, 1, 2]]
+    points = np.array([[0, 0], [25, 12], [37, 50], [63, 25]])
+    n = len(points)
+    L = 4 * n * n
+    square = [(4 * L * L - 1) // 3, [L-1, L-1], 1]
+    distance = calc_portal_dist_leave(portal_usage, points, square, c=1, m=2)
+    assert distance == 0.5 + 0.5 + 0.5 + 0.5
+    # 2
+    portal_usage = [0, [0, 0, 2, 1, 2, 1, 1, 2]]
+    points = np.array([[0, 0], [25, 12], [37, 50], [63, 63]])
+    n = len(points)
+    L = 4 * n * n
+    square = [(4 * L * L - 1) // 3, [L-1, L-1], 1]
+    distance = calc_portal_dist_leave(portal_usage, points, square, c=1, m=2)
+    assert distance == MAX_DP_VAL
+    # 3
+    portal_usage = [0, [1, 0, 2, 2, 0, 1, 0, 0]]
+    points = np.array([[0, 0], [25, 12], [37, 50], [63, 63]])
+    n = len(points)
+    L = 4 * n * n
+    square = [(4 * L * L - 1) // 3, [L-1, L-1], 1]
+    distance = calc_portal_dist_leave(portal_usage, points, square, c=1, m=2)
+    assert distance == 1 + math.sqrt(0.5)
 
