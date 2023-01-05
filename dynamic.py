@@ -196,13 +196,14 @@ def do_dp(points, c, m):
     dp = np.zeros((SQUARES_AMOUNT, POSITIONS_AMOUNT)) + MAX_DP_VAL
     # base
     print("Calculating base for DP...")
-    #DEBUGDBG#for square in iter_leaves(n):
-    #    for portal_usage in iter_portal_usages(m, c):
-    #        dp[square[0]][portal_usage[0]] = calc_portal_dist_leave(portal_usage, points, square, c, m)
-    #    print(f"{square[0] - (4 * L * L - 1) // 3 + L * L} / {L * L}")
+    for square in iter_leaves(n):
+        for portal_usage in iter_portal_usages(m, c):
+            dp[square[0]][portal_usage[0]] = calc_portal_dist_leave(portal_usage, points, square, c, m)
+        if square[0] % 1000 == 0:
+            print(f"{square[0] - (4 * L * L - 1) // 3 + L * L} / {L * L}")
     # recursion
     print("Calculating whole DP")
-    debug_counter = 0
+    log_counter = 0
     for square in iter_nonleaves(n):
         #for portal_usage_1 in iter_portal_usages(m, c):
         #    for portal_usage_2 in iter_portal_usages(m, c):
@@ -217,14 +218,14 @@ def do_dp(points, c, m):
         #                if not check_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4):
         #                    continue
         for portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4 in iter_4_correlated_portal_usages(m, c):
-                        debug_counter += 1
-                        portal_usage_parent = get_parent_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4)
-                        #print(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4, portal_usage_parent)
-                        children = get_children(square, L)
-                        new_dp = dp[children[0][0]][portal_usage_1[0]] + dp[children[1][0]][portal_usage_2[0]] + dp[children[2][0]][portal_usage_3[0]] + dp[children[3][0]][portal_usage_4[0]]
-                        dp[square[0]][portal_usage_parent[0]] = min(dp[square[0]][portal_usage_parent[0]], new_dp)
-                        if debug_counter % 1_000_000 == 0:
-                            print(f"{debug_counter} / {3**((8 * m + 4 * m - 3) * c)}")
+            log_counter += 1
+            portal_usage_parent = get_parent_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4)
+            #print(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4, portal_usage_parent)
+            children = get_children(square, L)
+            new_dp = dp[children[0][0]][portal_usage_1[0]] + dp[children[1][0]][portal_usage_2[0]] + dp[children[2][0]][portal_usage_3[0]] + dp[children[3][0]][portal_usage_4[0]]
+            dp[square[0]][portal_usage_parent[0]] = min(dp[square[0]][portal_usage_parent[0]], new_dp)
+            if log_counter % 100_000 == 0:
+                print(f"{log_counter} / {((4 * L * L - 1) // 3 - L * L) * 3**((8 * m + 4 * m - 3) * c)}")
     return dp
 
 def get_dp_answer(points, c, m, dp):

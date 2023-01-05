@@ -1,6 +1,6 @@
 # DBG TODO
 
-in iter_4_... portals not compatible (1-2), in do_dp base commented, iteration not right
+in iter_4_... portals not compatible (1-2), in do_dp iteration commented
 
 
 
