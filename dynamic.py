@@ -43,8 +43,7 @@ def iter_4_correlated_portal_usages(m, c):
     # return 4 lists of (m*c) numbers between 0 and 2, f. e. [1, 0, 0, 2] for m*c=4, such that they are compatible
     #  (placed side-to-side exits will meet enters of other square)
     mc = m * c
-    position = [0] * ((8 * m + 4 * (m - 1)) * c) # 8 sides of bigger square, 4 inner sides
-    index = 0
+    position = [0] * ((8 * m + 4 * m - 4) * c) # 8 sides of bigger square, 4 inner sides
     while True:
         portals = []
         # create portals for subsquares
@@ -59,10 +58,13 @@ def iter_4_correlated_portal_usages(m, c):
             portals[1][1][2*mc+k] = transform(portals[1][1][2*mc+k])
             portals[3][1][3*mc+k] = transform(portals[3][1][3*mc+k])
             portals[2][1][k] = transform(portals[2][1][k])
-        for k in range(4):
-            portals[k][0] = get_usage_index(portals[k])
-        yield portals
-        index += 1
+        for center_configuration in [[0,0,0,0], [0,0,1,2],]:
+            indexes = [2*mc, 3*mc, 1*mc, 0]
+            for k in range(4):
+                portals[k][1][indexes[k]] = center_configuration[k]
+            for k in range(4):
+                portals[k][0] = get_usage_index(portals[k])
+            yield portals
         for k in range(len(position) - 1, -1, -1):
             position[k] += 1
             if position[k] != 3:
