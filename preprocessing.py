@@ -2,10 +2,13 @@ import numpy as np
 import math
 
 
+def get_L(n):
+    # let L = 4*n^2 for theory; let it be smaller for practical reasons
+    return int(n * n // 4) # 4 * n * n
+
 def preprocess(points):
-    # let L = 4*n^2
     n = len(points)
-    L = 4 * n * n
+    L = get_L(n)
     # move and resize points in such way that square [0,L-1]x[0,L-1]
     # is the smallest one which can contain all the points
     # (resizing does not change quality of approximation of the algorithm)

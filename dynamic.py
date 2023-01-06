@@ -1,19 +1,20 @@
 import numpy as np
 import math
+from preprocessing import get_L
 
 
 MAX_DP_VAL = 1e18
 
 def iter_leaves(n):
     # return [a, [x, y], 1] where a is index of square, x,y are coordinates of left-upper corner
-    L = 4 * n * n
+    L = get_L(n)
     all_squares = (4 * L * L - 1) // 3
     for i in range(L * L):
         yield [i + all_squares - L * L, [i % L, i // L], 1]
 
 def iter_nonleaves(n):
     # return [a, [x, y], s] where a is index of square, x,y are coordinates of left-upper corner, s is size
-    L = int(4 * n * n)
+    L = get_L(n)
     size = 2
     index = (4 * L * L - 1) // 3 - L * L - 1
     while size < L:
@@ -218,7 +219,7 @@ def do_dp(points, c, m):
     global log_counter
     # create dp[square i][valid visit k] = minimal length of well-behaved tour
     n = len(points)
-    L = 4 * n * n
+    L = get_L(n)
     SQUARES_AMOUNT = (4*L*L-1) // 3 # amount of squares on all levels 1 + 4 + 16 + ... + L*L
     POSITIONS_AMOUNT = 3**(4*m*c) # 2^(2r)=2^(2mc) - how many different possible portal usages
     dp = np.zeros((SQUARES_AMOUNT, POSITIONS_AMOUNT)) + MAX_DP_VAL
@@ -228,7 +229,7 @@ def do_dp(points, c, m):
     for square in iter_leaves(n):
         for portal_usage in iter_portal_usages(m, c):
             dp[square[0]][portal_usage[0]] = calc_portal_dist_leave(portal_usage, points, square, c, m)
-        if square[0] % 1000 == 0:
+        if square[0] % (L * L // 4) == 0:
             print(f"{square[0] - (4 * L * L - 1) // 3 + L * L} / {L * L}")
     # recursion
     print("Calculating whole DP")
@@ -268,7 +269,7 @@ def get_dp_answer_recursively(dp_answer, square, portal_usage, L):
 
 def get_dp_answer(points, c, m, dp):
     n = len(points)
-    L = 4 * n * n
+    L = get_L(n)
     square = [0, [0, 0], L]
     portal_usage = [-1, [0] * 4 * c * m]
     portal_usage[0] == get_usage_index(portal_usage)
