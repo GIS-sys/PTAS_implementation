@@ -36,19 +36,33 @@ print("\n")
 # 3 step is to do dynamic programming and find exact solution of simplified problem
 
 # mc >= 2
-c = 2**0 # must be power of 2
+c = 2**1 # must be power of 2
 m = 2**0 # must be power of 2
-result = do_dp(points_preprocessed, c, m)
 
-print("Result of dynamic programming:")
-print(f"{result.shape=}")
-print(result)
-print("\n")
+if False:
+    with open('dp.txt', 'r') as file_dp:
+        dp = eval(file_dp.read())
+
+    with open('dp_answer.txt', 'r') as file_dp_answer:
+        dp_answer = eval(file_dp_answer.read())
+else:
+    dp, dp_answer = do_dp(points_preprocessed, c, m)
+
+    with open('dp.txt', 'w') as file_dp:
+        file_dp.write(str(dp.tolist()))
+
+    with open('dp_answer.txt', 'w') as file_dp_answer:
+        file_dp_answer.write(str(dp_answer))
+
+    print("Result of dynamic programming:")
+    print(f"{dp.shape=}")
+    print(dp)
+print("|\n")
 
 
 
 # 4 step is to recover answer from dp
-tour, length = get_dp_answer(points, m, c, result)
+tour, length = get_dp_answer(points, m, c, dp_answer)
 print(f"Length of found tour: {length}")
 print(f"{tour=}")
 print("\n")
@@ -56,7 +70,6 @@ print("\n")
 
 
 # let's compare answer to real length
-
 from optimal import find_optimal_tour
 optimal_tour, optimal_length = find_optimal_tour(points)
 print(f"Length of optimal tour: {optimal_length}")

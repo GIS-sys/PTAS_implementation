@@ -24,6 +24,13 @@ def iter_nonleaves(n):
         size *= 2
     yield [0, [0, 0], L]
 
+def check_portal_enters_exits(portal_usage):
+    portal_enters = sum([1 if x == 1 else 0 for x in portal_usage[1]])
+    portal_exits = sum([1 if x == 2 else 0 for x in portal_usage[1]])
+    if portal_enters != portal_exits:
+        return False
+    return True
+
 def iter_portal_usages(m, c):
     # return list of (m*c) numbers between 0 and 2, f. e. [1, 0, 0, 2] for m*c=4
     position = [0] * (4 * m * c)
@@ -39,18 +46,24 @@ def iter_portal_usages(m, c):
         if sum(position) == 0:
             break
 
+
+log_counter = 0
+
+
 def iter_4_correlated_portal_usages(m, c):
+    global log_counter
     # return 4 lists of (m*c) numbers between 0 and 2, f. e. [1, 0, 0, 2] for m*c=4, such that they are compatible
     #  (placed side-to-side exits will meet enters of other square)
     mc = m * c
     position = [0] * ((8 * m + 4 * m - 4) * c) # 8 sides of bigger square, 4 inner sides
     while True:
+        log_counter += 1
         portals = []
         # create portals for subsquares
-        portals.append([-1, position[0:mc] + [position[mc]] + position[8*mc:9*mc-1] + [0] + position[11*mc-3:12*mc-4][::-1] + position[7*mc:8*mc]])
-        portals.append([-1, position[mc:2*mc] + position[2*mc:3*mc] + [position[3*mc]] + position[9*mc-1:10*mc-2][::-1] + [0] + position[8*mc:9*mc-1][::-1]])
-        portals.append([-1, [position[7*mc]] + position[11*mc-3:12*mc-4] + [0] + position[10*mc-2:11*mc-3] + position[5*mc:6*mc][::-1] + position[6*mc:7*mc]])
-        portals.append([-1, [0] + position[9*mc-1:10*mc-2] + position[3*mc:4*mc] + position[4*mc:5*mc] + [position[5*mc]] + position[10*mc-2:11*mc-3][::-1]])
+        portals.append([-1, position[0:mc] + position[mc:mc+c] + position[8*mc:9*mc-c] + [0] * c + position[11*mc-3*c:12*mc-4*c][::-1] + position[7*mc:8*mc]])
+        portals.append([-1, position[mc:2*mc] + position[2*mc:3*mc] + position[3*mc:3*mc+c] + position[9*mc-c:10*mc-2*c][::-1] + [0] * c + position[8*mc:9*mc-c][::-1]])
+        portals.append([-1, position[7*mc:7*mc+c] + position[11*mc-3*c:12*mc-4*c] + [0]*c + position[10*mc-2*c:11*mc-3*c] + position[5*mc:6*mc][::-1] + position[6*mc:7*mc]])
+        portals.append([-1, [0] * c + position[9*mc-c:10*mc-2*c] + position[3*mc:4*mc] + position[4*mc:5*mc] + position[5*mc:5*mc+c] + position[10*mc-2*c:11*mc-3*c][::-1]])
         # make them compatible: turn some portals 2->1, 1->2 (0->0)
         transform = lambda x: [0, 2, 1][x]
         for k in range(mc):
@@ -58,10 +71,13 @@ def iter_4_correlated_portal_usages(m, c):
             portals[1][1][2*mc+k] = transform(portals[1][1][2*mc+k])
             portals[3][1][3*mc+k] = transform(portals[3][1][3*mc+k])
             portals[2][1][k] = transform(portals[2][1][k])
-        for center_configuration in [[0,0,0,0], [0,0,1,2],]:
+        for center_configuration in [[0,0,0,0], [0,0,1,2], [0,0,2,1], [0,1,0,2], [0,1,2,0], [0,2,1,0], [0,2,0,1], [1,0,2,0], [1,0,0,2],
+                                     [1,1,2,2], [1,2,1,2], [1,2,2,1], [2,0,0,1], [2,0,1,0], [2,1,1,2], [2,1,2,1], [2,2,1,1]]:
             indexes = [2*mc, 3*mc, 1*mc, 0]
             for k in range(4):
                 portals[k][1][indexes[k]] = center_configuration[k]
+            if not check_portal_enters_exits(portals[0]) or not check_portal_enters_exits(portals[1]) or not check_portal_enters_exits(portals[2]) or not check_portal_enters_exits(portals[3]):
+                continue
             for k in range(4):
                 portals[k][0] = get_usage_index(portals[k])
             yield portals
@@ -121,6 +137,8 @@ def calc_portal_dist_leave(portal_usage, points, square, c, m):
     # then iterate through all different possibilities of connecting portals 
     #  (according to portal_usage: 0 is not used, 1 is enter, 2 is exit)
     # and find shortest tour
+    if not check_portal_enters_exits(portal_usage):
+        return MAX_DP_VAL
     points_list = [list(point) for point in points]
     for dx in [0, 1]:
         for dy in [0, 1]:
@@ -197,12 +215,14 @@ def get_children(square, L):
     return children
 
 def do_dp(points, c, m):
+    global log_counter
     # create dp[square i][valid visit k] = minimal length of well-behaved tour
     n = len(points)
     L = 4 * n * n
     SQUARES_AMOUNT = (4*L*L-1) // 3 # amount of squares on all levels 1 + 4 + 16 + ... + L*L
     POSITIONS_AMOUNT = 3**(4*m*c) # 2^(2r)=2^(2mc) - how many different possible portal usages
     dp = np.zeros((SQUARES_AMOUNT, POSITIONS_AMOUNT)) + MAX_DP_VAL
+    dp_answer = [[None] * POSITIONS_AMOUNT for _ in range(SQUARES_AMOUNT)]
     # base
     print("Calculating base for DP...")
     for square in iter_leaves(n):
@@ -212,30 +232,45 @@ def do_dp(points, c, m):
             print(f"{square[0] - (4 * L * L - 1) // 3 + L * L} / {L * L}")
     # recursion
     print("Calculating whole DP")
-    log_counter = 0
+    last_log_counter = 0
     for square in iter_nonleaves(n):
-        #for portal_usage_1 in iter_portal_usages(m, c):
-        #    for portal_usage_2 in iter_portal_usages(m, c):
-        #        debug_counter += 1
-        #        print(f"{debug_counter} / {((4 * L * L - 1) // 3 - L * L) * 3**(4*m*c) * 3**(4*m*c)}")
-        #        if not check_portal_usage(portal_usage_1, portal_usage_2, None, None):
-        #            continue
-        #        for portal_usage_3 in iter_portal_usages(m, c):
-        #            if not check_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, None):
-        #                continue
-        #            for portal_usage_4 in iter_portal_usages(m, c):
-        #                if not check_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4):
-        #                    continue
         for portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4 in iter_4_correlated_portal_usages(m, c):
-            log_counter += 1
             portal_usage_parent = get_parent_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4)
+            if not check_portal_enters_exits(portal_usage_parent):
+                continue
             children = get_children(square, L)
             new_dp = dp[children[0][0]][portal_usage_1[0]] + dp[children[1][0]][portal_usage_2[0]] + dp[children[2][0]][portal_usage_3[0]] + dp[children[3][0]][portal_usage_4[0]]
-            dp[square[0]][portal_usage_parent[0]] = min(dp[square[0]][portal_usage_parent[0]], new_dp)
-            if log_counter % 100_000 == 0:
-                print(f"{log_counter} / {((4 * L * L - 1) // 3 - L * L) * 3**((8 * m + 4 * m - 3) * c)}")
-    return dp
+            if new_dp < dp[square[0]][portal_usage_parent[0]]:
+                dp[square[0]][portal_usage_parent[0]] = new_dp
+                dp_answer[square[0]][portal_usage_parent[0]] = [portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4]
+            if log_counter // 100_000 != last_log_counter // 100_000:
+                print(f"{log_counter} / {((4 * L * L - 1) // 3 - L * L) * 3**((8 * m + 4 * m - 4) * c)}")
+            last_log_counter = log_counter
+    return dp, dp_answer
+
+#def get_dp_answer_recursively(dp_answer, square, portal_usage, L):
+#    if square[2] == 4:
+#        print(square, portal_usage)
+#        return
+#    for k, child in enumerate(get_children(square, L)):
+#        get_dp_answer_recursively(dp_answer, child, dp_answer[square[0]][portal_usage[0]][k], L)
+
+def get_dp_answer_recursively(dp_answer, square, portal_usage, L):
+    bfs = [[square, portal_usage]]
+    while bfs:
+        square, portal_usage = bfs[0]
+        bfs = bfs[1:]
+        print(square, portal_usage)
+        if square[2] == 4:
+            continue
+        for k, child in enumerate(get_children(square, L)):
+            bfs.append([child, dp_answer[square[0]][portal_usage[0]][k]])
 
 def get_dp_answer(points, c, m, dp):
-    return [points[0], points[1]], dp[0][0]
+    n = len(points)
+    L = 4 * n * n
+    square = [0, [0, 0], L]
+    portal_usage = [-1, [0] * 4 * c * m]
+    portal_usage[0] == get_usage_index(portal_usage)
+    return get_dp_answer_recursively(dp, square, portal_usage, L)
 
