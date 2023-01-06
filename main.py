@@ -39,12 +39,22 @@ print("\n")
 c = 2**1 # must be power of 2
 m = 2**0 # must be power of 2
 
-if False:
+if 0:
     with open('dp.txt', 'r') as file_dp:
         dp = eval(file_dp.read())
 
     with open('dp_answer.txt', 'r') as file_dp_answer:
         dp_answer = eval(file_dp_answer.read())
+
+    #while True:
+    #    x, q = map(int, input().split())
+    #    print(f"{dp[x][q]=}")
+
+    for x in range(1, 5):
+        print(f"{x=} {dp[x][0]=}")
+    for x in range(5, 21):
+        print(f"{x=} {dp[x][2+3**4]=} {dp[x][5]=} {dp[x][63]=} {dp[x][5103]=} {dp[x][405]=}")
+    #[5, [0, 0, 0, 0, 0, 0, 1, 2]] [63, [0, 0, 0, 0, 2, 1, 0, 0]] [5103, [2, 1, 0, 0, 0, 0, 0, 0]] [405
 else:
     dp, dp_answer = do_dp(points_preprocessed, c, m)
 
