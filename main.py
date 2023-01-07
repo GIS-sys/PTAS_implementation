@@ -25,7 +25,6 @@ print("\n")
 
 
 # 2 step is to preprocess input (described in preprocessing.py)
-
 points_preprocessed = preprocess(points)
 print(f"Input points after applying preprocessing:")
 print(points_preprocessed)
@@ -34,26 +33,15 @@ print("\n")
 
 
 # 3 step is to do dynamic programming and find exact solution of simplified problem
-
 c = 2**1 # must be 4
 m = 2**0 # must be power of 2, ~ log2 (2L) / epsilon
 
-if 1:
+if input("If you want to load recently saved dp - type 'load' and press enter. If you want to recalculate new dp - press anything:\n") == "load":
     with open('dp.txt', 'r') as file_dp:
         dp = eval(file_dp.read())
 
     with open('dp_answer.txt', 'r') as file_dp_answer:
         dp_answer = eval(file_dp_answer.read())
-
-    for x in range(1, 5):
-        print(f"{x=} {dp[x][0]=}")
-    for x in range(5, 21):
-        print(f"{x=} {dp[x][2+3**4]=} {dp[x][5]=} {dp[x][63]=} {dp[x][5103]=} {dp[x][405]=}")
-    #[5, [0, 0, 0, 0, 0, 0, 1, 2]] [63, [0, 0, 0, 0, 2, 1, 0, 0]] [5103, [2, 1, 0, 0, 0, 0, 0, 0]] [405
-
-    #while True:
-    #    x, q = map(int, input().split())
-    #    print(f"{dp[x][q]=} {dp_answer[x][q]}")
 else:
     dp, dp_answer = do_dp(points_preprocessed, c, m)
 
