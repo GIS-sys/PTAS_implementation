@@ -54,22 +54,16 @@ def iter_4_correlated_portal_usages(m, c):
     # return 4 lists of (m*c) numbers between 0 and 2, f. e. [1, 0, 0, 2] for m*c=4, such that they are compatible
     #  (placed side-to-side exits will meet enters of other square)
     mc = m * c
-    position = [0] * ((8 * m + 4 * m - 4) * c - 4) # 8 sides of bigger square, 4 inner sides; -4 because other 4 are calculated from others (enters=exits)
+    position = [0] * ((8 * m + 4 * m - 4) * c - 4 + 2 * c) # 8 sides of bigger square, 4 inner sides; -4 because other 4 are calculated from others (enters=exits); +2c for center
     while True:
         log_counter += 1
         portals = []
-        # create portals for subsquares
+        # create portals for subsquares #??????????????
         pos = [0] + position[0:2*mc-1] + [0] + position[2*mc-1:4*mc-2] + [0] + position[4*mc-2:6*mc-3] + [0] + position[6*mc-3:]
-        portals.append([-1, pos[0:mc] + pos[mc:mc+c] + pos[8*mc:9*mc-c] + [0] * c + pos[11*mc-3*c:12*mc-4*c][::-1] + pos[7*mc:8*mc]])
-        portals.append([-1, pos[mc:2*mc] + pos[2*mc:3*mc] + pos[3*mc:3*mc+c] + pos[9*mc-c:10*mc-2*c][::-1] + [0] * c + pos[8*mc:9*mc-c][::-1]])
-        portals.append([-1, pos[7*mc:7*mc+c] + pos[11*mc-3*c:12*mc-4*c] + [0]*c + pos[10*mc-2*c:11*mc-3*c] + pos[5*mc:6*mc][::-1] + pos[6*mc:7*mc]])
-        portals.append([-1, [0] * c + pos[9*mc-c:10*mc-2*c] + pos[3*mc:4*mc] + pos[4*mc:5*mc] + pos[5*mc:5*mc+c] + pos[10*mc-2*c:11*mc-3*c][::-1]])
-        for k in range(4):
-            diff = get_portal_enters_exits_diff(portals[k])
-            if diff < 0:
-                portals[k][1][k * mc] = 1
-            if diff > 0:
-                portals[k][1][k * mc] = 2
+        portals.append([-1, pos[0:mc] + pos[mc:mc+c][::-1] + pos[8*mc:9*mc-c] + [0] * c + pos[11*mc-3*c:12*mc-4*c][::-1] + pos[7*mc:8*mc]])
+        portals.append([-1, pos[mc:2*mc] + pos[2*mc:3*mc] + pos[3*mc:3*mc+c][::-1] + pos[9*mc-c:10*mc-2*c][::-1] + [0] * c + pos[8*mc:9*mc-c][::-1]])
+        portals.append([-1, pos[7*mc:7*mc+c][::-1] + pos[11*mc-3*c:12*mc-4*c] + [0]*c + pos[10*mc-2*c:11*mc-3*c] + pos[5*mc:6*mc] + pos[6*mc:7*mc]])
+        portals.append([-1, [0] * c + pos[9*mc-c:10*mc-2*c] + pos[3*mc:4*mc] + pos[4*mc:5*mc] + pos[5*mc:5*mc+c][::-1] + pos[10*mc-2*c:11*mc-3*c][::-1]])
         # make them compatible: turn some portals 2->1, 1->2 (0->0)
         transform = lambda x: [0, 2, 1][x]
         for k in range(mc):
@@ -77,16 +71,32 @@ def iter_4_correlated_portal_usages(m, c):
             portals[1][1][2*mc+k] = transform(portals[1][1][2*mc+k])
             portals[3][1][3*mc+k] = transform(portals[3][1][3*mc+k])
             portals[2][1][k] = transform(portals[2][1][k])
-        for center_configuration in [[0,0,0,0], [0,0,1,2], [0,0,2,1], [0,1,0,2], [0,1,2,0], [0,2,1,0], [0,2,0,1], [1,0,2,0], [1,0,0,2],
-                                     [1,1,2,2], [1,2,1,2], [1,2,2,1], [2,0,0,1], [2,0,1,0], [2,1,1,2], [2,1,2,1], [2,2,1,1]]:
-            indexes = [2*mc, 3*mc, 1*mc, 0]
-            for k in range(4):
-                portals[k][1][indexes[k]] = center_configuration[k]
-            if get_portal_enters_exits_diff(portals[0]) or get_portal_enters_exits_diff(portals[1]) or get_portal_enters_exits_diff(portals[2]) or get_portal_enters_exits_diff(portals[3]):
-                continue
+        # center
+        for k in range(0, c):
+            portals[0][1][2*c*m + c - 1 - k] = pos[-2*c + k]
+        for k in range(0, c // 2):
+            portals[1][1][3*c*m + c//2 + k] = transform(pos[-2*c + c//2 + k])
+        for k in range(0, c // 2):
+            portals[1][1][3*c*m + k] = transform(pos[-2*c + c + k])
+        for k in range(0, c//2):
+            portals[2][1][c*m + k] = transform(pos[-2 * c + k])
+        for k in range(0, c//2):
+            portals[2][1][c*m + c//2 + k] = transform(pos[-2 * c + 3 * c//2 + k])
+        for k in range(0, c):
+            portals[3][1][k] = pos[-2 * c + 2 * c - 1 - k]
+        # if enters != exits then skip this
+        indexes = [0, 1, 3, 2]
+        for k in range(4):
+            diff = get_portal_enters_exits_diff(portals[k])
+            if diff < 0:
+                portals[k][1][indexes[k] * mc] = 1
+            if diff > 0:
+                portals[k][1][indexes[k] * mc] = 2
+        if not (get_portal_enters_exits_diff(portals[0]) or get_portal_enters_exits_diff(portals[1]) or get_portal_enters_exits_diff(portals[2]) or get_portal_enters_exits_diff(portals[3])):
             for k in range(4):
                 portals[k][0] = get_usage_index(portals[k])
             yield portals
+
         for k in range(len(position) - 1, -1, -1):
             position[k] += 1
             if position[k] != 3:
@@ -189,23 +199,10 @@ def get_parent_portal_usage(usage1, usage2, usage3, usage4, c, m):
     # pick sides of usages to form outside of the parent square (combined from 4 smaller ones)
     mc = m * c
     usage = []
-    for k in range(0, m, 2):
+    usage_x2 = usage1[1][0:m*c] + usage2[1][0:2*m*c] + usage4[1][m*c:3*m*c] + usage3[1][2*m*c:4*m*c] + usage1[1][3*m*c:4*m*c]
+    for k in range(0, len(usage_x2) // c, 2):
         for z in range(c):
-            usage.append(usage1[1][k*c+z])
-    for k in range(0, 2*m, 2):
-        for z in range(c):
-            usage.append(usage2[1][k*c+z])
-    for k in range(m, 3*m, 2):
-        for z in range(c):
-            usage.append(usage3[1][k*c+z])
-    for k in range(2*m, 4*m, 2):
-        for z in range(c):
-            usage.append(usage4[1][k*c+z])
-    for k in range(3*m+1, 4*m, 2):
-        for z in range(c):
-            usage.append(usage1[1][k*c+z])
-    #usage = [-1, (usage1[1][-mc:] + usage1[1][:mc])[::2] + usage2[1][:2*mc][::2] + usage3[1][mc:3*mc][::2] + usage4[1][2*mc:4*mc][::2]]
-    #usage[1] = usage[1][(mc+1)//2:] + usage[1][:(mc+1)//2]
+            usage.append(usage_x2[k*c+z])
     usage = [-1, usage]
     usage[0] = get_usage_index(usage)
     return usage
@@ -256,7 +253,7 @@ def do_dp(points, c, m):
             print(f"{square[0] - (4 * L * L - 1) // 3 + L * L} / {L * L}")
     # recursion
     print("Calculating whole DP")
-    last_log_counter = 0
+    last_log_counter = -1e9
     for square in iter_nonleaves(n):
         for portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4 in iter_4_correlated_portal_usages(m, c):
             portal_usage_parent = get_parent_portal_usage(portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4, c, m)
@@ -277,7 +274,7 @@ def do_dp(points, c, m):
                 dp[square[0]][portal_usage_parent[0]] = new_dp
                 dp_answer[square[0]][portal_usage_parent[0]] = [portal_usage_1, portal_usage_2, portal_usage_3, portal_usage_4]
             if log_counter // 100_000 != last_log_counter // 100_000:
-                print(f"{log_counter} / {((4 * L * L - 1) // 3 - L * L) * 3**((8 * m + 4 * m - 4) * c - 4)}")
+                print(f"{log_counter} / {((4 * L * L - 1) // 3 - L * L) * 3**((8 * m + 4 * m - 4) * c - 4 + 2 * c)}")
             last_log_counter = log_counter
     return dp, dp_answer
 
