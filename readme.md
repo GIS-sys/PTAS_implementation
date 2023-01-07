@@ -14,8 +14,6 @@ To run test execute command
 
 # Plan of proof of algorithm
 
-(the step-by-step description of algorithm for now can be found if you start reading comments in main.py and go into every package on the way)
-
 1) moving and scaling points while preprocessing obviously do not change the approximation factor of algorithm
 
 2) rounding while preprocessing changes optimal length in not more than 1+1/n times (lemma 2.1 in paper (1))
@@ -42,9 +40,9 @@ d) the tour is not self-intersecting in terms of mini-portals
 
 as was said in step 2, assumption a) increases optimal tour length not more than by 1+1/n times; for other assumption similar result is shown in chapter 4 in paper (1)
 
-4) find optimal algorithm using DP (under assumptions): ??????????????????????????????????????????????????????????????????????????
+4) find optimal algorithm using DP (under assumptions)
 
-# Source paper
+# Source papers
 
 (1) http://viswa.engin.umich.edu/wp-content/uploads/sites/169/2019/03/9.pdf
 
