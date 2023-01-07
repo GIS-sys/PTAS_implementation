@@ -93,9 +93,11 @@ def iter_4_correlated_portal_usages(m, c):
             if diff > 0:
                 portals[k][1][indexes[k] * mc] = 2
         if not (get_portal_enters_exits_diff(portals[0]) or get_portal_enters_exits_diff(portals[1]) or get_portal_enters_exits_diff(portals[2]) or get_portal_enters_exits_diff(portals[3])):
-            for k in range(4):
-                portals[k][0] = get_usage_index(portals[k])
-            yield portals
+            # for improving performance: no two portals in center
+            if not(portals[0][1][mc] and portals[0][1][mc+1] or portals[1][1][2*mc] and portals[1][1][2*mc+1] or portals[2][1][0] and portals[2][1][1] or portals[2][1][3*mc] and portals[2][1][3*mc+1]):
+                for k in range(4):
+                    portals[k][0] = get_usage_index(portals[k])
+                yield portals
 
         for k in range(len(position) - 1, -1, -1):
             position[k] += 1

@@ -38,7 +38,7 @@ print("\n")
 c = 2**1 # must be 4
 m = 2**0 # must be power of 2, ~ log2 (2L) / epsilon
 
-if 1:
+if 0:
     with open('dp.txt', 'r') as file_dp:
         dp = eval(file_dp.read())
 
