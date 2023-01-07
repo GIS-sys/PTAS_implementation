@@ -17,7 +17,7 @@ points = np.array([
     [3, 4],
     [5, 2],
 ])
-# len of points must be power of 2
+# len of points must be a power of 2, >=4
 print("Raw input points:")
 print(points)
 print("\n")
@@ -35,9 +35,8 @@ print("\n")
 
 # 3 step is to do dynamic programming and find exact solution of simplified problem
 
-# mc >= 2
-c = 2**1 # must be power of 2
-m = 2**0 # must be power of 2
+c = 2**1 # must be 4
+m = 2**0 # must be power of 2, ~ log2 (2L) / epsilon
 
 if 1:
     with open('dp.txt', 'r') as file_dp:

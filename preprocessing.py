@@ -3,8 +3,8 @@ import math
 
 
 def get_L(n):
-    # let L = 4*n^2 for theory; let it be smaller for practical reasons
-    return int(n * n // 4) # 4 * n * n
+    # let L = n^2 for theory; let it be smaller for practical reasons
+    return int(n * n // 4)
 
 def preprocess(points):
     n = len(points)
