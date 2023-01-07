@@ -1,6 +1,6 @@
 import numpy as np
 from preprocessing import preprocess
-from dynamic import do_dp, get_dp_answer
+from dynamic import do_dp, print_dp_answer
 
 
 # 1 step is to get input points. For now it is stored in numpy.array `points`
@@ -38,7 +38,7 @@ print("\n")
 c = 2**1 # must be 4
 m = 2**0 # must be power of 2, ~ log2 (2L) / epsilon
 
-if 0:
+if 1:
     with open('dp.txt', 'r') as file_dp:
         dp = eval(file_dp.read())
 
@@ -51,9 +51,9 @@ if 0:
         print(f"{x=} {dp[x][2+3**4]=} {dp[x][5]=} {dp[x][63]=} {dp[x][5103]=} {dp[x][405]=}")
     #[5, [0, 0, 0, 0, 0, 0, 1, 2]] [63, [0, 0, 0, 0, 2, 1, 0, 0]] [5103, [2, 1, 0, 0, 0, 0, 0, 0]] [405
 
-    while True:
-        x, q = map(int, input().split())
-        print(f"{dp[x][q]=} {dp_answer[x][q]}")
+    #while True:
+    #    x, q = map(int, input().split())
+    #    print(f"{dp[x][q]=} {dp_answer[x][q]}")
 else:
     dp, dp_answer = do_dp(points_preprocessed, c, m)
 
@@ -71,16 +71,16 @@ print("|\n")
 
 
 # 4 step is to recover answer from dp
-tour, length = get_dp_answer(points, m, c, dp_answer)
-print(f"Length of found tour: {length}")
-print(f"{tour=}")
+print(f"Length of found tour: {dp[0][0]}")
+print("Used square portal configurations:")
+print_dp_answer(points_preprocessed, m, c, dp_answer)
 print("\n")
 
 
 
 # let's compare answer to real length
 from optimal import find_optimal_tour
-optimal_tour, optimal_length = find_optimal_tour(points)
+optimal_tour, optimal_length = find_optimal_tour(points_preprocessed)
 print(f"Length of optimal tour: {optimal_length}")
 print("Optimal tour:")
 print(optimal_tour)

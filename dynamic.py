@@ -287,7 +287,7 @@ def do_dp(points, c, m):
 #    for k, child in enumerate(get_children(square, L)):
 #        get_dp_answer_recursively(dp_answer, child, dp_answer[square[0]][portal_usage[0]][k], L)
 
-def get_dp_answer_recursively(dp_answer, square, portal_usage, L):
+def print_dp_answer_bfs(dp_answer, square, portal_usage, L):
     bfs = [[square, portal_usage]]
     while bfs:
         square, portal_usage = bfs[0]
@@ -298,11 +298,11 @@ def get_dp_answer_recursively(dp_answer, square, portal_usage, L):
         for k, child in enumerate(get_children(square, L)):
             bfs.append([child, dp_answer[square[0]][portal_usage[0]][k]])
 
-def get_dp_answer(points, c, m, dp):
+def print_dp_answer(points, c, m, dp):
     n = len(points)
     L = get_L(n)
     square = [0, [0, 0], L]
-    portal_usage = [-1, [0] * 4 * c * m]
+    portal_usage = [0, [0] * 4 * c * m]
     portal_usage[0] == get_usage_index(portal_usage)
-    return get_dp_answer_recursively(dp, square, portal_usage, L)
+    print_dp_answer_bfs(dp, square, portal_usage, L)
 
