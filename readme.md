@@ -1,8 +1,6 @@
-# DBG TODO
+# Overleaf document
 
-in do_dp iteration commented
-
-
+Main document with fully explained theory and description of algorithm: https://www.overleaf.com/read/fwnjvwvpcdwp.
 
 # How to run
 
